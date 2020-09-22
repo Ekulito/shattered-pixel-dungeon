@@ -48,6 +48,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarHammer;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
@@ -109,6 +110,10 @@ public enum HeroClass {
 
 		new ScrollOfIdentify().identify();
 
+		//DEBUG
+		new PotionOfHealing().quantity(500).collect();
+		new WarHammer().upgrade(500).identify().collect();
+		new ScrollOfMagicMapping().quantity(500).collect();
 	}
 
 	public Badges.Badge masteryBadge() {

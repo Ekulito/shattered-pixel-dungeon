@@ -6,18 +6,18 @@ buildscript {
     dependencies {
         //FIXME the version of R8 coming with gradle plugin 4.0.0 causes serious problems
         //noinspection GradleDependency
-        classpath 'com.android.tools.build:gradle:3.6.4'
+        classpath 'com.android.tools.build:gradle:4.0.1'
     }
 }
 
 allprojects {
 
     ext {
-        appName = 'Shattered Pixel Dungeon'
-        appPackageName = 'com.shatteredpixel.shatteredpixeldungeon'
+        appName = 'ForkOf Pixel Dungeon'
+        appPackageName = 'com.ekulito.forkofpixeldungeon'
 
-        appVersionCode = 464
-        appVersionName = '0.8.2d'
+        appVersionCode = 465
+        appVersionName = '0.0.0'
 
         appJavaCompatibility = JavaVersion.VERSION_1_8
 

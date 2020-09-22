@@ -47,6 +47,7 @@ public class SkeletonKey extends Key {
 		this.depth = depth;
 	}
 
+	/*
 	@Override
 	public boolean doPickUp(Hero hero) {
 		if(!SPDSettings.supportNagged()){
@@ -65,6 +66,6 @@ public class SkeletonKey extends Key {
 		}
 		
 		return super.doPickUp(hero);
-	}
+	}*/
 
 }

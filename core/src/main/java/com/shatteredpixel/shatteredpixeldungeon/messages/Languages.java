@@ -24,8 +24,8 @@ package com.shatteredpixel.shatteredpixeldungeon.messages;
 import java.util.Locale;
 
 public enum Languages {
-	ENGLISH("english",      "",   Status.REVIEWED,   null, null),
-	RUSSIAN("русский",      "ru", Status.REVIEWED,   new String[]{"ConsideredHamster", "Inevielle", "apxwn", "yarikonline" }, new String[]{"AttHawk46", "BlueberryShortcake", "HerrGotlieb", "HoloTheWise", "Ilbko", "JleHuBbluKoT", "MrXantar", "Nikets", "Originalej0name", "Raymundo", "Shamahan", "kirusyaga", "perefrazz", "roman.yagodin", "un_logic", "Вoвa"}),
+	ENGLISH("english",      "",   Status.REVIEWED,   null, null);
+	/*RUSSIAN("русский",      "ru", Status.REVIEWED,   new String[]{"ConsideredHamster", "Inevielle", "apxwn", "yarikonline" }, new String[]{"AttHawk46", "BlueberryShortcake", "HerrGotlieb", "HoloTheWise", "Ilbko", "JleHuBbluKoT", "MrXantar", "Nikets", "Originalej0name", "Raymundo", "Shamahan", "kirusyaga", "perefrazz", "roman.yagodin", "un_logic", "Вoвa"}),
 	KOREAN("한국어",          "ko", Status.UNREVIEWED, new String[]{"Cocoa", "Flameblast12", "GameConqueror", "Korean2017"}, new String[]{"WondarRabb1t", "ddojin0115", "eeeei", "enjuxx", "hancyel", "linterpreteur", "lsiebnie"}),
 	CHINESE("中文",         "zh", Status.UNREVIEWED, new String[]{"Jinkeloid(zdx00793)", "endlesssolitude"}, new String[]{"931451545", "Fatir", "Fishbone", "HoofBumpBlurryface", "Lery", "Lyn_0401", "ShatteredFlameBlast", "hmdzl001", "tempest102"}),
 	POLISH("polski",        "pl", Status.REVIEWED,   new String[]{"Deksippos", "MrKukurykpl", "kuadziw", "szymex73"}, new String[]{"Chasseur", "Darden", "DarkKnightComes", "KarixDaii", "MJedi", "Odiihinia", "Peperos", "Scharnvirk", "VasteelXolotl", "bvader95", "dusakus", "michaub", "ozziezombie", "szczoteczka22", "transportowiec96"}),
@@ -43,7 +43,7 @@ public enum Languages {
 	UKRANIAN("українська",  "uk", Status.REVIEWED,   new String[]{"Oster"}, new String[]{"Sadsaltan1", "TheGuyBill", "Volkov", "ZverWolf", "ingvarfed", "oliolioxinfree", "romanokurg", "vlisivka"}),
 	CATALAN("català",       "ca", Status.REVIEWED,   new String[]{"Illyatwo2"}, new String[]{"Elosy", "n1ngu"}),
 	BASQUE("euskara",       "eu", Status.INCOMPLETE, new String[]{"Deathrevenge", "Osoitz"}, null),
-	ESPERANTO("esperanto",  "eo", Status.REVIEWED,   new String[]{"Verdulo"}, new String[]{"Raizin"});
+	ESPERANTO("esperanto",  "eo", Status.REVIEWED,   new String[]{"Verdulo"}, new String[]{"Raizin"});*/
 
 	public enum Status{
 		//below 80% complete languages are not added.

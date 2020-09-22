@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.ekulito.forkofpixeldungeon.indev",
+  "variantName": "debug",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "properties": [],
+      "versionCode": 465,
+      "versionName": "0.0.0-INDEV",
+      "enabled": true,
+      "outputFile": "android-debug.apk"
+    }
+  ]
+}

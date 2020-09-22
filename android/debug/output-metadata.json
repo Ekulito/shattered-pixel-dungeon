@@ -11,7 +11,7 @@
       "type": "SINGLE",
       "filters": [],
       "properties": [],
-      "versionCode": 465,
+      "versionCode": 466,
       "versionName": "0.0.0-INDEV",
       "enabled": true,
       "outputFile": "android-debug.apk"

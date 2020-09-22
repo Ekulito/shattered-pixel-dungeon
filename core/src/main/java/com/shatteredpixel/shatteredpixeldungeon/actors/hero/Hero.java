@@ -315,7 +315,7 @@ public class Hero extends Char {
 	public void live() {
 		Buff.affect( this, Regeneration.class );
 		Buff.affect( this, Hunger.class );
-		Buff.affect(this, Insanity.class);//only on challenge actually, but later
+		//Buff.affect(this, Insanity.class);//only on challenge actually, but later
 	}
 	
 	public int tier() {

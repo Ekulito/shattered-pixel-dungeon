@@ -45,6 +45,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GhostSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndGhostQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndSadGhost;
 import com.watabou.noosa.Game;
@@ -172,23 +173,29 @@ public class Ghost extends NPC {
 					questBoss = new GreatCrab();
 					txt_quest = Messages.get(this, "crab_1", Dungeon.hero.name()); break;
 			}
+			questBoss.pos = Dungeon.level.randomRespawnCell(this);
 
-			questBoss.pos = Dungeon.level.randomRespawnCell( this );
+			Game.runOnRenderThread(new Callback() {
+				@Override
+				public void call() {
+					GameScene.show( new WndGhostQuest( Ghost.this, txt_quest ) );
+				}
+			});
 
-			if (questBoss.pos != -1) {
-				GameScene.add(questBoss);
-				Quest.given = true;
-				Game.runOnRenderThread(new Callback() {
-					@Override
-					public void call() {
-						GameScene.show( new WndQuest( Ghost.this, txt_quest ) );
-					}
-				});
+			if(Quest.given) {
+				if (questBoss.pos != -1) {
+					GameScene.add(questBoss);
+				}
 			}
 
 		}
 
 		return true;
+	}
+
+	public void dieWithoutAnimation() {
+		destroy();
+		((GhostSprite)sprite).disappear();
 	}
 
 	public static class Quest {
@@ -197,8 +204,9 @@ public class Ghost extends NPC {
 
 		private static int type;
 
-		private static boolean given;
+		public static boolean given;
 		private static boolean processed;
+		private static boolean failed;
 		
 		private static int depth;
 		
@@ -336,16 +344,21 @@ public class Ghost extends NPC {
 		public static void complete() {
 			weapon = null;
 			armor = null;
-			
+			failed=false;
 			Notes.remove( Notes.Landmark.GHOST );
 		}
+
+		public static void fail(){
+		    complete();
+		    failed=true;
+        }
 
 		public static boolean processed(){
 			return spawned && processed;
 		}
 		
-		public static boolean completed(){
-			return processed() && weapon == null && armor == null;
+		public static boolean completed() {
+			return processed() && weapon == null && armor == null && !failed;
 		}
 	}
 }

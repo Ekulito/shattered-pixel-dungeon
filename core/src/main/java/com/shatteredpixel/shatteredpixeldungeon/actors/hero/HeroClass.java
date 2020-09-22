@@ -114,6 +114,7 @@ public enum HeroClass {
 		new PotionOfHealing().quantity(500).collect();
 		new WarHammer().upgrade(500).identify().collect();
 		new ScrollOfMagicMapping().quantity(500).collect();
+		new PotionOfMindVision().quantity(500).collect();
 	}
 
 	public Badges.Badge masteryBadge() {

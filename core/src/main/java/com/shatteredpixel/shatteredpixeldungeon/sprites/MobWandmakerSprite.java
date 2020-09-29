@@ -22,69 +22,65 @@
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.effects.ShieldHalo;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.MobGhost;
+import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.Callback;
 
-public class WandmakerSprite extends MobSprite {
-	
-	private ShieldHalo shield;
+public class MobWandmakerSprite extends MobSprite {
 
-	private Animation disappear;
-	public WandmakerSprite() {
+	private Animation blink;
+	public MobWandmakerSprite() {
 		super();
 		
-		texture( Assets.Sprites.MAKER );
-		
+		texture( Assets.Sprites.MOBMAKER );
+
 		TextureFilm frames = new TextureFilm( texture, 12, 14 );
-		
-		idle = new Animation( 10, true );
-		idle.frames( frames, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 2, 1 );
-		
+
+		idle = new Animation( 1, true );
+		idle.frames( frames, 0, 0, 0, 1, 0, 0, 1, 1 );
+
 		run = new Animation( 20, true );
-		run.frames( frames, 0 );
-		
+		run.frames( frames, 2, 3, 4, 5, 6, 7 );
+
 		die = new Animation( 20, false );
-		die.frames( frames, 0 );
+		die.frames( frames, 8, 9, 10, 11, 12, 11 );
 
-		disappear=new Animation(15,false);
-		disappear.frames(frames,4);
+		attack = new Animation( 15, false );
+		attack.frames( frames, 13, 14, 15, 0 );
 
+		zap = attack.clone();
+
+		blink = attack.clone();
+		
 		play( idle );
 	}
-	
+
 	@Override
-	public void link( Char ch ) {
-		super.link( ch );
-		add(State.SHIELDED);
-	}
-	
-	@Override
-	public void die() {
-		super.die();
-		
-		remove(State.SHIELDED);
-		emitter().start( ElmoParticle.FACTORY, 0.03f, 60 );
-
-		if (visible) {
-			Sample.INSTANCE.play( Assets.Sounds.BURNING );
+	public void onComplete( Animation anim ) {
+		if (anim == blink) {
+			isMoving = false;
+			idle();
 		}
-	}
-
-
-	public void disappear() {
-		remove(State.SHIELDED);
-
-		sleeping = false;
-		play( disappear );
-
-		hideEmo();
-
-		if (health != null){
-			health.killAndErase();
+		if (anim == zap) {
+			idle();
 		}
+		super.onComplete( anim );
 	}
 
+	public void blink( int from, int to ) {
+
+		place( to );
+
+		play( blink );
+		turnTo( from , to );
+
+		isMoving = true;
+
+		ch.onMotionComplete();
+	}
 }

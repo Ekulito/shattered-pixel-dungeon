@@ -150,18 +150,18 @@ public class WandOfFireblast extends DamageWand {
 
 		//cast to cells at the tip, rather than all cells, better performance.
 		for (Ballistica ray : cone.rays){
-			((MagicMissile)curUser.sprite.parent.recycle( MagicMissile.class )).reset(
+			((MagicMissile)userAsChar.sprite.parent.recycle( MagicMissile.class )).reset(
 					MagicMissile.FIRE_CONE,
-					curUser.sprite,
+					userAsChar.sprite,
 					ray.path.get(ray.dist),
 					null
 			);
 		}
 
 		//final zap at half distance, for timing of the actual wand effect
-		MagicMissile.boltFromChar( curUser.sprite.parent,
+		MagicMissile.boltFromChar( userAsChar.sprite.parent,
 				MagicMissile.FIRE_CONE,
-				curUser.sprite,
+				userAsChar.sprite,
 				bolt.path.get(dist/2),
 				callback );
 		Sample.INSTANCE.play( Assets.Sounds.ZAP );
@@ -169,7 +169,7 @@ public class WandOfFireblast extends DamageWand {
 	}
 
 	@Override
-	protected int chargesPerCast() {
+	public int chargesPerCast() {
 		//consumes 30% of current charges, rounded up, with a minimum of one.
 		return Math.max(1, (int)Math.ceil(curCharges*0.3f));
 	}

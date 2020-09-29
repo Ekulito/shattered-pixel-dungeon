@@ -178,15 +178,9 @@ public class Ghost extends NPC {
 			Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
-					GameScene.show( new WndGhostQuest( Ghost.this, txt_quest ) );
+					GameScene.show( new WndGhostQuest( Ghost.this, txt_quest, questBoss ) );
 				}
 			});
-
-			if(Quest.given) {
-				if (questBoss.pos != -1) {
-					GameScene.add(questBoss);
-				}
-			}
 
 		}
 
@@ -224,6 +218,7 @@ public class Ghost extends NPC {
 		
 		private static final String SPAWNED		= "spawned";
 		private static final String TYPE        = "type";
+		private static final String FAILED      = "failed";
 		private static final String GIVEN		= "given";
 		private static final String PROCESSED	= "processed";
 		private static final String DEPTH		= "depth";
@@ -243,6 +238,7 @@ public class Ghost extends NPC {
 				node.put( GIVEN, given );
 				node.put( DEPTH, depth );
 				node.put( PROCESSED, processed);
+				node.put( FAILED, failed);
 				
 				node.put( WEAPON, weapon );
 				node.put( ARMOR, armor );
@@ -260,6 +256,7 @@ public class Ghost extends NPC {
 				type = node.getInt(TYPE);
 				given	= node.getBoolean( GIVEN );
 				processed = node.getBoolean( PROCESSED );
+				failed=node.getBoolean(FAILED);
 
 				depth	= node.getInt( DEPTH );
 				
@@ -285,6 +282,7 @@ public class Ghost extends NPC {
 				type = Dungeon.depth-1;
 				
 				given = false;
+				failed = false;
 				processed = false;
 				depth = Dungeon.depth;
 

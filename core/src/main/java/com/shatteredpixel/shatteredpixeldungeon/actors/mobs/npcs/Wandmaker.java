@@ -39,9 +39,11 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.RitualSite
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.GhostSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.WandmakerSprite;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndWandmaker;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndWandmakerQuest;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
@@ -172,24 +174,38 @@ public class Wandmaker extends NPC {
 			msg2 += Messages.get(this, "intro_2");
 			final String msg1Final = msg1;
 			final String msg2Final = msg2;
-			
-			Game.runOnRenderThread(new Callback() {
-				@Override
-				public void call() {
-					GameScene.show(new WndQuest(Wandmaker.this, msg1Final){
-						@Override
-						public void hide() {
-							super.hide();
-							GameScene.show(new WndQuest(Wandmaker.this, msg2Final));
-						}
-					});
-				}
-			});
 
-			Quest.given = true;
+			if(!Quest.introduced) {
+				Quest.introduced=true;
+				Game.runOnRenderThread(new Callback() {
+					@Override
+					public void call() {
+						GameScene.show(new WndQuest(Wandmaker.this, msg1Final) {
+							@Override
+							public void hide() {
+								super.hide();
+								GameScene.show(new WndWandmakerQuest(Wandmaker.this, msg2Final));
+							}
+						});
+					}
+				});
+			}
+			else {
+				Game.runOnRenderThread(new Callback() {
+					@Override
+					public void call() {
+						GameScene.show(new WndWandmakerQuest(Wandmaker.this, msg2Final));
+					}
+				});
+			}
 		}
 
 		return true;
+	}
+
+	public void dieWithoutAnimation() {
+		destroy();
+		((WandmakerSprite)sprite).disappear();
 	}
 	
 	public static class Quest {
@@ -201,7 +217,8 @@ public class Wandmaker extends NPC {
 		
 		private static boolean spawned;
 		
-		private static boolean given;
+		public static boolean given;
+		private static boolean introduced;
 		
 		public static Wand wand1;
 		public static Wand wand2;
@@ -217,6 +234,7 @@ public class Wandmaker extends NPC {
 		private static final String NODE		= "wandmaker";
 		
 		private static final String SPAWNED		= "spawned";
+		private static final String INTRODUCED  = "introduced";
 		private static final String TYPE		= "type";
 		private static final String GIVEN		= "given";
 		private static final String WAND1		= "wand1";
@@ -235,6 +253,7 @@ public class Wandmaker extends NPC {
 				node.put( TYPE, type );
 				
 				node.put( GIVEN, given );
+				node.put(INTRODUCED,introduced);
 				
 				node.put( WAND1, wand1 );
 				node.put( WAND2, wand2 );
@@ -257,6 +276,7 @@ public class Wandmaker extends NPC {
 				type = node.getInt(TYPE);
 				
 				given = node.getBoolean( GIVEN );
+				introduced=node.getBoolean(INTRODUCED);
 				
 				wand1 = (Wand)node.get( WAND1 );
 				wand2 = (Wand)node.get( WAND2 );
@@ -300,6 +320,7 @@ public class Wandmaker extends NPC {
 				spawned = true;
 
 				given = false;
+				introduced = false;
 				wand1 = (Wand) Generator.random(Generator.Category.WAND);
 				wand1.cursed = false;
 				wand1.upgrade();

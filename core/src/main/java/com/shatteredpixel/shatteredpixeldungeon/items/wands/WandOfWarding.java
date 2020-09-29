@@ -32,15 +32,15 @@ public class WandOfWarding extends Wand {
 	}
 
 	@Override
-	protected int collisionProperties(int target) {
-		if (Dungeon.level.heroFOV[target])  return Ballistica.STOP_TARGET;
+	public int collisionProperties(int target) {
+		if (userAsChar.fieldOfView[target])  return Ballistica.STOP_TARGET;
 		else                                return Ballistica.PROJECTILE;
 	}
 
 	private boolean wardAvailable = true;
 	
 	@Override
-	public boolean tryToZap(Hero owner, int target) {
+	public boolean tryToZap(Char owner, int target) {
 		
 		int currentWardEnergy = 0;
 		for (Char ch : Actor.chars()){

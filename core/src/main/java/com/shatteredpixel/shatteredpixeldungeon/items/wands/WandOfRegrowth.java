@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class WandOfRegrowth extends Wand {
-
+	private static final int NOT_HERO= 10000;
 	{
 		image = ItemSpriteSheet.WAND_REGROWTH;
 
@@ -67,7 +67,7 @@ public class WandOfRegrowth extends Wand {
 	int target;
 
 	@Override
-	public boolean tryToZap(Hero owner, int target) {
+	public boolean tryToZap(Char owner, int target) {
 		if (super.tryToZap(owner, target)){
 			this.target = target;
 			return true;
@@ -81,7 +81,10 @@ public class WandOfRegrowth extends Wand {
 
 		ArrayList<Integer> cells = new ArrayList<>(cone.cells);
 
-		int overLimit = totChrgUsed - chargeLimit(Dungeon.hero.lvl);
+		int overLimit;
+		if(userAsChar instanceof Hero)
+			overLimit = totChrgUsed - chargeLimit(Dungeon.hero.lvl);
+		else overLimit = NOT_HERO;
 		float furrowedChance = overLimit > 0 ? (overLimit / (10f + Dungeon.hero.lvl)) : 0;
 
 		int chrgUsed = chargesPerCast();
@@ -213,25 +216,25 @@ public class WandOfRegrowth extends Wand {
 
 		//cast to cells at the tip, rather than all cells, better performance.
 		for (Ballistica ray : cone.rays){
-			((MagicMissile)curUser.sprite.parent.recycle( MagicMissile.class )).reset(
+			((MagicMissile)userAsChar.sprite.parent.recycle( MagicMissile.class )).reset(
 					MagicMissile.FOLIAGE_CONE,
-					curUser.sprite,
+					userAsChar.sprite,
 					ray.path.get(ray.dist),
 					null
 			);
 		}
 
 		//final zap at half distance, for timing of the actual wand effect
-		MagicMissile.boltFromChar( curUser.sprite.parent,
+		MagicMissile.boltFromChar( userAsChar.sprite.parent,
 				MagicMissile.FOLIAGE_CONE,
-				curUser.sprite,
+				userAsChar.sprite,
 				bolt.path.get(dist/2),
 				callback );
 		Sample.INSTANCE.play( Assets.Sounds.ZAP );
 	}
 
 	@Override
-	protected int chargesPerCast() {
+	public int chargesPerCast() {
 		//consumes 30% of current charges, rounded up, with a minimum of one.
 		return Math.max(1, (int)Math.ceil(curCharges*0.3f));
 	}

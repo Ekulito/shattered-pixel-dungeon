@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -70,9 +71,9 @@ public class WandOfPrismaticLight extends DamageWand {
 		
 		if (Dungeon.level.viewDistance < 6 ){
 			if (Dungeon.isChallenged(Challenges.DARKNESS)){
-				Buff.prolong( curUser, Light.class, 2f + buffedLvl());
+				Buff.prolong( userAsChar, Light.class, 2f + buffedLvl());
 			} else {
-				Buff.prolong( curUser, Light.class, 10f+buffedLvl()*5);
+				Buff.prolong( userAsChar, Light.class, 10f+buffedLvl()*5);
 			}
 		}
 		
@@ -111,21 +112,23 @@ public class WandOfPrismaticLight extends DamageWand {
 			if (!Dungeon.level.insideMap(c)){
 				continue;
 			}
-			for (int n : PathFinder.NEIGHBOURS9){
-				int cell = c+n;
+			if(userAsChar instanceof Hero) {
+				for (int n : PathFinder.NEIGHBOURS9) {
+					int cell = c + n;
 
-				if (Dungeon.level.discoverable[cell])
-					Dungeon.level.mapped[cell] = true;
+					if (Dungeon.level.discoverable[cell])
+						Dungeon.level.mapped[cell] = true;
 
-				int terr = Dungeon.level.map[cell];
-				if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
+					int terr = Dungeon.level.map[cell];
+					if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
 
-					Dungeon.level.discover( cell );
+						Dungeon.level.discover(cell);
 
-					GameScene.discoverTile( cell, terr );
-					ScrollOfMagicMapping.discover(cell);
+						GameScene.discoverTile(cell, terr);
+						ScrollOfMagicMapping.discover(cell);
 
-					noticed = true;
+						noticed = true;
+					}
 				}
 			}
 
@@ -139,8 +142,8 @@ public class WandOfPrismaticLight extends DamageWand {
 
 	@Override
 	protected void fx( Ballistica beam, Callback callback ) {
-		curUser.sprite.parent.add(
-				new Beam.LightRay(curUser.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(beam.collisionPos)));
+		userAsChar.sprite.parent.add(
+				new Beam.LightRay(userAsChar.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(beam.collisionPos)));
 		callback.call();
 	}
 

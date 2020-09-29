@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
@@ -75,18 +76,19 @@ public class WandOfLightning extends DamageWand {
 			ch.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );
 			ch.sprite.flash();
 
-			if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos){
+			if (ch != userAsChar && ch.alignment == userAsChar.alignment && ch.pos != bolt.collisionPos){
 				continue;
 			}
-			processSoulMark(ch, chargesPerCast());
-			if (ch == curUser) {
+			if(userAsChar instanceof Hero)
+				processSoulMark(ch, chargesPerCast());
+			if (ch == userAsChar) {
 				ch.damage(Math.round(damageRoll() * multipler * 0.5f), this);
 			} else {
 				ch.damage(Math.round(damageRoll() * multipler), this);
 			}
 		}
 
-		if (!curUser.isAlive()) {
+		if (!Dungeon.hero.isAlive()) {
 			Dungeon.fail( getClass() );
 			GLog.n(Messages.get(this, "ondeath"));
 		}
@@ -107,8 +109,8 @@ public class WandOfLightning extends DamageWand {
 		for (int i = 0; i < PathFinder.distance.length; i++) {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE){
 				Char n = Actor.findChar( i );
-				if (n == Dungeon.hero && PathFinder.distance[i] > 1)
-					//the hero is only zapped if they are adjacent
+				if (n == userAsChar && PathFinder.distance[i] > 1)
+					//the user is only zapped if they are adjacent
 					continue;
 				else if (n != null && !affected.contains( n )) {
 					hitThisArc.add(n);
@@ -134,15 +136,15 @@ public class WandOfLightning extends DamageWand {
 		Char ch = Actor.findChar( cell );
 		if (ch != null) {
 			affected.add( ch );
-			arcs.add( new Lightning.Arc(curUser.sprite.center(), ch.sprite.center()));
+			arcs.add( new Lightning.Arc(userAsChar.sprite.center(), ch.sprite.center()));
 			arc(ch);
 		} else {
-			arcs.add( new Lightning.Arc(curUser.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(bolt.collisionPos)));
+			arcs.add( new Lightning.Arc(userAsChar.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(bolt.collisionPos)));
 			CellEmitter.center( cell ).burst( SparkParticle.FACTORY, 3 );
 		}
 
 		//don't want to wait for the effect before processing damage.
-		curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
+		userAsChar.sprite.parent.addToFront( new Lightning( arcs, null ) );
 		Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 		callback.call();
 	}

@@ -76,6 +76,8 @@ public abstract class Wand extends Item {
 	private float availableUsesToID = USES_TO_ID/2f;
 
 	protected int collisionProperties = Ballistica.MAGIC_BOLT;
+
+	public Char userAsChar = null;
 	
 	{
 		defaultAction = AC_ZAP;
@@ -101,6 +103,7 @@ public abstract class Wand extends Item {
 		if (action.equals( AC_ZAP )) {
 			
 			curUser = hero;
+			userAsChar=curUser;
 			curItem = this;
 			GameScene.selectCell( zapper );
 			
@@ -111,17 +114,18 @@ public abstract class Wand extends Item {
 
 	public abstract void onHit( MagesStaff staff, Char attacker, Char defender, int damage);
 
-	public boolean tryToZap( Hero owner, int target ){
-
+	public boolean tryToZap( Char owner, int target ){
 		if (owner.buff(MagicImmune.class) != null){
-			GLog.w( Messages.get(this, "no_magic") );
+			if(owner instanceof Hero)
+				GLog.w( Messages.get(this, "no_magic") );
 			return false;
 		}
 
 		if ( curCharges >= (cursed ? 1 : chargesPerCast())){
 			return true;
 		} else {
-			GLog.w(Messages.get(this, "fizzles"));
+			if(owner instanceof Hero)
+				GLog.w(Messages.get(this, "fizzles"));
 			return false;
 		}
 	}
@@ -161,7 +165,8 @@ public abstract class Wand extends Item {
 	}
 
 	protected void processSoulMark(Char target, int chargesUsed){
-		processSoulMark(target, buffedLvl(), chargesUsed);
+		if(userAsChar instanceof Hero)
+			processSoulMark(target, buffedLvl(), chargesUsed);
 	}
 
 	protected static void processSoulMark(Char target, int wandLevel, int chargesUsed){
@@ -279,8 +284,8 @@ public abstract class Wand extends Item {
 	@Override
 	public int buffedLvl() {
 		int lvl = super.buffedLvl();
-		if (curUser != null) {
-			WandOfMagicMissile.MagicCharge buff = curUser.buff(WandOfMagicMissile.MagicCharge.class);
+		if (userAsChar != null) {
+			WandOfMagicMissile.MagicCharge buff = userAsChar.buff(WandOfMagicMissile.MagicCharge.class);
 			if (buff != null && buff.level() > lvl){
 				return buff.level();
 			}
@@ -297,17 +302,17 @@ public abstract class Wand extends Item {
 		return 2;
 	}
 
-	protected int chargesPerCast() {
+	public int chargesPerCast() {
 		return 1;
 	}
 	
 	protected void fx( Ballistica bolt, Callback callback ) {
-		MagicMissile.boltFromChar( curUser.sprite.parent,
+		MagicMissile.boltFromChar(userAsChar.sprite.parent,
 				MagicMissile.MAGIC_MISSILE,
-				curUser.sprite,
+				userAsChar.sprite,
 				bolt.collisionPos,
 				callback);
-		Sample.INSTANCE.play( Assets.Sounds.ZAP );
+		Sample.INSTANCE.play(Assets.Sounds.ZAP);
 	}
 
 	public void staffFx( MagesStaff.StaffParticle particle ){
@@ -319,7 +324,7 @@ public abstract class Wand extends Item {
 	}
 
 	protected void wandUsed() {
-		if (!isIdentified() && availableUsesToID >= 1) {
+		if (userAsChar instanceof Hero && !isIdentified() && availableUsesToID >= 1) {
 			availableUsesToID--;
 			usesLeftToID--;
 			if (usesLeftToID <= 0) {
@@ -331,17 +336,21 @@ public abstract class Wand extends Item {
 		
 		curCharges -= cursed ? 1 : chargesPerCast();
 
-		WandOfMagicMissile.MagicCharge buff = curUser.buff(WandOfMagicMissile.MagicCharge.class);
+		WandOfMagicMissile.MagicCharge buff = userAsChar.buff(WandOfMagicMissile.MagicCharge.class);
 		if (buff != null && buff.level() > super.buffedLvl()){
 			buff.detach();
 		}
 
 		Invisibility.dispel();
 		
-		if (curUser.heroClass == HeroClass.MAGE) levelKnown = true;
-		updateQuickslot();
-
-		curUser.spendAndNext( TIME_TO_ZAP );
+		if (userAsChar instanceof Hero) {
+			if (curUser.heroClass == HeroClass.MAGE) levelKnown = true;
+			updateQuickslot();
+			curUser.spendAndNext( TIME_TO_ZAP );
+		}
+		else {
+			//note to self: don't forget to spend time on attacks
+		}
 	}
 	
 	@Override
@@ -423,15 +432,66 @@ public abstract class Wand extends Item {
 		availableUsesToID = USES_TO_ID/2f;
 	}
 
-	protected int collisionProperties( int target ){
-		return collisionProperties;
+	public int collisionProperties( int target ){return collisionProperties; }
+
+	public void shootAt(Integer target){
+		final Ballistica shot = new Ballistica( userAsChar.pos, target, collisionProperties(target));
+		int cell = shot.collisionPos;
+
+		if (target == userAsChar.pos || cell == userAsChar.pos) {
+			if(userAsChar instanceof Hero)
+				GLog.i( Messages.get(Wand.class, "self_target") );
+			return;
+		}
+
+		userAsChar.sprite.zap(cell);
+
+		//attempts to target the cell aimed at if something is there, otherwise targets the collision pos.
+		if(userAsChar instanceof Hero) {
+			if (Actor.findChar(target) != null)
+				QuickSlotButton.target(Actor.findChar(target));
+			else
+				QuickSlotButton.target(Actor.findChar(cell));
+		}
+
+		if (tryToZap(userAsChar, target)) {
+
+			if(userAsChar instanceof Hero) {
+				((Hero) userAsChar).busy();//TODO: is this really okay?
+			}
+			if (cursed){
+				if (!cursedKnown){
+					if(userAsChar instanceof Hero)
+						GLog.n(Messages.get(Wand.class, "curse_discover", name()));
+				}
+				CursedWand.cursedZap(this,
+						userAsChar,
+						new Ballistica(userAsChar.pos, target, Ballistica.MAGIC_BOLT),
+						new Callback() {
+							@Override
+							public void call() {
+								wandUsed();
+							}
+						});
+			} else {
+				fx(shot, new Callback() {
+					public void call() {
+						onZap(shot);
+						wandUsed();
+					}
+				});
+			}
+			cursedKnown = true;
+
+		}
+
 	}
-	
+
 	protected static CellSelector.Listener zapper = new  CellSelector.Listener() {
 		
 		@Override
 		public void onSelect( Integer target ) {
-			
+
 			if (target != null) {
 				
 				//FIXME this safety check shouldn't be necessary
@@ -442,52 +502,8 @@ public abstract class Wand extends Item {
 				} else {
 					return;
 				}
-
-				final Ballistica shot = new Ballistica( curUser.pos, target, curWand.collisionProperties(target));
-				int cell = shot.collisionPos;
-				
-				if (target == curUser.pos || cell == curUser.pos) {
-					GLog.i( Messages.get(Wand.class, "self_target") );
-					return;
-				}
-
-				curUser.sprite.zap(cell);
-
-				//attempts to target the cell aimed at if something is there, otherwise targets the collision pos.
-				if (Actor.findChar(target) != null)
-					QuickSlotButton.target(Actor.findChar(target));
-				else
-					QuickSlotButton.target(Actor.findChar(cell));
-				
-				if (curWand.tryToZap(curUser, target)) {
-					
-					curUser.busy();
-					
-					if (curWand.cursed){
-						if (!curWand.cursedKnown){
-							GLog.n(Messages.get(Wand.class, "curse_discover", curWand.name()));
-						}
-						CursedWand.cursedZap(curWand,
-								curUser,
-								new Ballistica(curUser.pos, target, Ballistica.MAGIC_BOLT),
-								new Callback() {
-									@Override
-									public void call() {
-										curWand.wandUsed();
-									}
-								});
-					} else {
-						curWand.fx(shot, new Callback() {
-							public void call() {
-								curWand.onZap(shot);
-								curWand.wandUsed();
-							}
-						});
-					}
-					curWand.cursedKnown = true;
-					
-				}
-				
+				curWand.userAsChar = curUser;
+				curWand.shootAt(target);
 			}
 		}
 		

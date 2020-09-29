@@ -54,14 +54,9 @@ public class MobGhost extends Mob implements Callback {
 	//ytadpailipmexom
 	private static final float BLINK_CHANCE = 0.125f;
 	private static final float TIME_TO_ZAP	= 1f;
-
-	public static Weapon weapon;
-	public static Armor armor;
-	private static final String WEAPON		= "weapon";
-	private static final String ARMOR		= "armor";
 	
 	{
-		spriteClass = MobGhostSprite.class;//TODO sprites
+		spriteClass = MobGhostSprite.class;
 		
 		HP = HT = 50;
 		defenseSkill=attackSkill(null) * 5/2;// normal wraiths have atk x5
@@ -186,8 +181,8 @@ public class MobGhost extends Mob implements Callback {
 		int tempPos = pos;//because we die and our position becomes nowhere
 		yell(Messages.get(this,"ondefeat"));
 		super.die( cause );
-		Dungeon.level.drop(Ghost.Quest.weapon, tempPos);
-		Dungeon.level.drop(Ghost.Quest.armor, tempPos);
+		Dungeon.level.drop(Ghost.Quest.weapon.identify(), tempPos);
+		Dungeon.level.drop(Ghost.Quest.armor.identify(), tempPos);
 		Ghost.Quest.fail();
 	}
 }

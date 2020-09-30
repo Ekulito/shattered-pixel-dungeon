@@ -68,7 +68,7 @@ public class WallBlockingTilemap extends Tilemap {
 
 		//FIXME this is to address the wall blocking looking odd on the new yog floor.
 		// The true solution is to improve the fog of war so the blockers aren't necessary.
-		if (Dungeon.level instanceof NewHallsBossLevel){
+		if (Dungeon.level instanceof NewHallsBossLevel || Dungeon.level.isFlat()){
 			data[cell] = CLEARED;
 			super.updateMapCell(cell);
 			return;

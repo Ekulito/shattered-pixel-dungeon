@@ -137,7 +137,7 @@ public class ItemSprite extends MovieClip {
 		
 		return new PointF(
 			cell % Dungeon.level.width() * csize + (csize - width()) * 0.5f,
-			cell / Dungeon.level.width() * csize + (csize - height()) - csize * perspectiveRaise
+			cell / Dungeon.level.width() * csize + (csize - height()) - csize * (Dungeon.level.isFlat() ? 0 : perspectiveRaise)
 		);
 	}
 	

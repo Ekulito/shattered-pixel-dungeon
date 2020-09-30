@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
+import com.shatteredpixel.shatteredpixeldungeon.items.portalitems.PageTown;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
@@ -115,6 +116,7 @@ public enum HeroClass {
 		new WarHammer().upgrade(500).identify().collect();
 		new ScrollOfMagicMapping().quantity(500).collect();
 		new PotionOfMindVision().quantity(500).collect();
+		new PageTown().collect();
 	}
 
 	public Badges.Badge masteryBadge() {

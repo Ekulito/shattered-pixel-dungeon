@@ -477,6 +477,10 @@ public abstract class Wand extends Item {
 				fx(shot, new Callback() {
 					public void call() {
 						onZap(shot);
+						if(!Dungeon.hero.isAlive() && !(userAsChar instanceof Hero)){
+							Dungeon.fail(userAsChar.getClass());
+							GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name())) );
+						}
 						wandUsed();
 					}
 				});

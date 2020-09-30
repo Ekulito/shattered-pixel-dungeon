@@ -51,12 +51,18 @@ public abstract class DungeonTilemap extends Tilemap {
 	@Override
 	public synchronized void updateMap() {
 		super.updateMap();
-		for (int i = 0; i < data.length; i++)
-			data[i] = getTileVisual(i ,map[i], false);
+		for (int i = 0; i < data.length; i++) {
+			data[i] = getTileVisual(i, map[i], Dungeon.level.isFlat());
+		}
 	}
 
 	@Override
 	public synchronized void updateMapCell(int cell) {
+		if(Dungeon.level.isFlat()) {
+			super.updateMapCell(cell);
+			data[cell] = getTileVisual(cell, map[cell], true);
+			return;
+		}
 		//update in a 3x3 grid to account for neighbours which might also be affected
 		if (Dungeon.level.insideMap(cell)) {
 			super.updateMapCell(cell - mapWidth - 1);

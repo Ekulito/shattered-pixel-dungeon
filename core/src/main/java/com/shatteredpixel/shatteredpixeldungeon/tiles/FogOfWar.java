@@ -209,7 +209,7 @@ public class FogOfWar extends Image {
 					}
 					
 					//wall tiles
-					if (wall(cell)) {
+					if (wall(cell) && !(Dungeon.level.isFlat())) {
 						
 						//always dark if nothing is beneath them
 						if (cell + mapWidth >= mapLength) {

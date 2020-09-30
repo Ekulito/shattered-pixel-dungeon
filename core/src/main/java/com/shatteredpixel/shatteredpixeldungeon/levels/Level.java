@@ -104,6 +104,8 @@ public abstract class Level implements Bundlable {
 		DARK
 	}
 
+	protected boolean isFlat = false;
+
 	protected int width;
 	protected int height;
 	protected int length;
@@ -628,10 +630,10 @@ public abstract class Level implements Bundlable {
 			water[i]		= (flags & Terrain.LIQUID) != 0;
 			pit[i]			= (flags & Terrain.PIT) != 0;
 		}
-		
-		SmokeScreen s = (SmokeScreen)blobs.get(SmokeScreen.class);
-		if (s != null && s.volume > 0){
-			for (int i=0; i < length(); i++) {
+
+		SmokeScreen s = (SmokeScreen) blobs.get(SmokeScreen.class);
+		if (s != null && s.volume > 0) {
+			for (int i = 0; i < length(); i++) {
 				losBlocking[i] = losBlocking[i] || s.cur[i] > 0;
 			}
 		}
@@ -1172,7 +1174,9 @@ public abstract class Level implements Bundlable {
 	public boolean adjacent( int a, int b ) {
 		return distance( a, b ) == 1;
 	}
-	
+
+	public boolean isFlat() {return isFlat;}
+
 	//uses pythagorean theorum for true distance, as if there was no movement grid
 	public float trueDistance(int a, int b){
 		int ax = a % width();

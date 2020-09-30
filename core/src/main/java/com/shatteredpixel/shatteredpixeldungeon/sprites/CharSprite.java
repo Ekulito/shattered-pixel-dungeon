@@ -166,7 +166,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		
 		return new PointF(
 			PixelScene.align(Camera.main, ((cell % Dungeon.level.width()) + 0.5f) * csize - width() * 0.5f),
-			PixelScene.align(Camera.main, ((cell / Dungeon.level.width()) + 1.0f) * csize - height() - csize * perspectiveRaise)
+			PixelScene.align(Camera.main, ((cell / Dungeon.level.width()) + 1.0f) * csize - height() - csize * (Dungeon.level.isFlat() ? 0 : perspectiveRaise))
 		);
 	}
 	

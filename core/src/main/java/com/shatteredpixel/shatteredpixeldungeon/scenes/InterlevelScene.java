@@ -67,7 +67,7 @@ public class InterlevelScene extends PixelScene {
 	private static float fadeTime;
 	
 	public enum Mode {
-		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, RESET, NONE
+		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, RESET, NONE, PORT
 	}
 	public static Mode mode;
 	
@@ -132,6 +132,10 @@ public class InterlevelScene extends PixelScene {
 				scrollSpeed = -5;
 				break;
 			case RETURN:
+				loadingDepth = returnDepth;
+				scrollSpeed = returnDepth > Dungeon.depth ? 15 : -15;
+				break;
+			case PORT:
 				loadingDepth = returnDepth;
 				scrollSpeed = returnDepth > Dungeon.depth ? 15 : -15;
 				break;
@@ -253,6 +257,9 @@ public class InterlevelScene extends PixelScene {
 							case RETURN:
 								returnTo();
 								break;
+							case PORT:
+								portal();
+								break;
 							case FALL:
 								fall();
 								break;
@@ -362,7 +369,7 @@ public class InterlevelScene extends PixelScene {
 		}
 
 		Level level;
-		if (Dungeon.depth >= Statistics.deepestFloor) {
+		if (!Dungeon.isCreated(Dungeon.depth + 1)) {
 			level = Dungeon.newLevel();
 		} else {
 			Dungeon.depth++;
@@ -379,7 +386,7 @@ public class InterlevelScene extends PixelScene {
 		Dungeon.saveAll();
 
 		Level level;
-		if (Dungeon.depth >= Statistics.deepestFloor) {
+		if (!Dungeon.isCreated(Dungeon.depth + 1)) {
 			level = Dungeon.newLevel();
 		} else {
 			Dungeon.depth++;
@@ -422,6 +429,21 @@ public class InterlevelScene extends PixelScene {
 			Level level = Dungeon.loadLevel( GamesInProgress.curSlot );
 			Dungeon.switchLevel( level, Dungeon.hero.pos );
 		}
+	}
+
+	private void portal() throws IOException {
+		Mob.holdAllies( Dungeon.level );
+
+		Dungeon.saveAll();
+
+		Level level;
+		if (!Dungeon.isCreated(returnDepth)) {
+			level = Dungeon.newLevel(returnDepth, false);
+		} else {
+			Dungeon.depth = returnDepth;
+			level = Dungeon.loadLevel( GamesInProgress.curSlot );
+		}
+		Dungeon.switchLevel( level, level.entrance );
 	}
 	
 	private void resurrect() throws IOException {

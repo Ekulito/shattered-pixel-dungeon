@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tiles;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.TownLevel;
 
 public class DungeonWallsTilemap extends DungeonTilemap {
 

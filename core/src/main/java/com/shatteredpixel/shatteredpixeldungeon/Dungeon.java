@@ -56,6 +56,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.NewPrisonBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.TownLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
@@ -77,7 +78,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Dungeon {
-
+	private static final int MAX_FLOORS=100;
+	private static boolean[] initialized;
 	//enum of items which have limited spawns, records how many have spawned
 	//could all be their own separate numbers, but this allows iterating, much nicer for bundling/initializing.
 	public static enum LimitedDrops {
@@ -176,7 +178,7 @@ public class Dungeon {
 
 		Actor.clear();
 		Actor.resetNextID();
-		
+		initialized = new boolean[MAX_FLOORS + 1];
 		Random.pushGenerator( seed );
 
 			Scroll.initLabels();
@@ -222,97 +224,107 @@ public class Dungeon {
 	public static boolean isChallenged( int mask ) {
 		return (challenges & mask) != 0;
 	}
-	
-	public static Level newLevel() {
-		
+
+	public static boolean isCreated(int floor){
+		return initialized[floor];
+	}
+
+	public static Level newLevel(int newDepth, boolean updateMax){
+		initialized[newDepth] = true;
 		Dungeon.level = null;
 		Actor.clear();
-		
-		depth++;
-		if (depth > Statistics.deepestFloor) {
+		depth = newDepth;
+		if (depth > Statistics.deepestFloor && updateMax) {
 			Statistics.deepestFloor = depth;
-			
+
 			if (Statistics.qualifiedForNoKilling) {
 				Statistics.completedWithNoKilling = true;
 			} else {
 				Statistics.completedWithNoKilling = false;
 			}
 		}
-		
+
 		Level level;
 		switch (depth) {
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-			level = new SewerLevel();
-			break;
-		case 5:
-			level = new SewerBossLevel();
-			break;
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-			level = new PrisonLevel();
-			break;
-		case 10:
-			level = new NewPrisonBossLevel();
-			break;
-		case 11:
-		case 12:
-		case 13:
-		case 14:
-			level = new CavesLevel();
-			break;
-		case 15:
-			level = new NewCavesBossLevel();
-			break;
-		case 16:
-		case 17:
-		case 18:
-		case 19:
-			level = new CityLevel();
-			break;
-		case 20:
-			level = new NewCityBossLevel();
-			break;
-		case 21:
-			//logic for old city boss levels, need to spawn a shop on floor 21
-			try {
-				Bundle bundle = FileUtils.bundleFromFile(GamesInProgress.depthFile(GamesInProgress.curSlot, 20));
-				Class cls = bundle.getBundle(LEVEL).getClass("__className");
-				if (cls == NewCityBossLevel.class) {
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+				level = new SewerLevel();
+				break;
+			case 5:
+				level = new SewerBossLevel();
+				break;
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				level = new PrisonLevel();
+				break;
+			case 10:
+				level = new NewPrisonBossLevel();
+				break;
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+				level = new CavesLevel();
+				break;
+			case 15:
+				level = new NewCavesBossLevel();
+				break;
+			case 16:
+			case 17:
+			case 18:
+			case 19:
+				level = new CityLevel();
+				break;
+			case 20:
+				level = new NewCityBossLevel();
+				break;
+			case 21:
+				//logic for old city boss levels, need to spawn a shop on floor 21
+				try {
+					Bundle bundle = FileUtils.bundleFromFile(GamesInProgress.depthFile(GamesInProgress.curSlot, 20));
+					Class cls = bundle.getBundle(LEVEL).getClass("__className");
+					if (cls == NewCityBossLevel.class) {
+						level = new HallsLevel();
+					} else {
+						level = new LastShopLevel();
+					}
+				} catch (Exception e) {
+					ShatteredPixelDungeon.reportException(e);
 					level = new HallsLevel();
-				} else {
-					level = new LastShopLevel();
 				}
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
+				break;
+			case 22:
+			case 23:
+			case 24:
 				level = new HallsLevel();
-			}
-			break;
-		case 22:
-		case 23:
-		case 24:
-			level = new HallsLevel();
-			break;
-		case 25:
-			level = new NewHallsBossLevel();
-			break;
-		case 26:
-			level = new LastLevel();
-			break;
-		default:
-			level = new DeadEndLevel();
-			Statistics.deepestFloor--;
+				break;
+			case 25:
+				level = new NewHallsBossLevel();
+				break;
+			case 26:
+				level = new LastLevel();
+				break;
+			case 27:
+				level = new TownLevel();
+				break;
+			default:
+				level = new DeadEndLevel();
+				Statistics.deepestFloor--;
 		}
-		
+
 		level.create();
-		
+
 		Statistics.qualifiedForNoKilling = !bossLevel();
-		
+
 		return level;
+	}
+
+	public static Level newLevel() {
+		return newLevel(depth + 1,true);
 	}
 	
 	public static void resetLevel() {
@@ -348,7 +360,7 @@ public class Dungeon {
 	}
 	
 	public static boolean bossLevel( int depth ) {
-		return depth == 5 || depth == 10 || depth == 15 || depth == 20 || depth == 25;
+		return depth == 5 || depth == 10 || depth == 15 || depth == 20 || depth == 25 || depth > 26;
 	}
 	
 	public static void switchLevel( final Level level, int pos ) {
@@ -459,6 +471,7 @@ public class Dungeon {
 	private static final String CHAPTERS	= "chapters";
 	private static final String QUESTS		= "quests";
 	private static final String BADGES		= "badges";
+	private static final String INITS		= "initialized";
 	
 	public static void saveGame( int save ) {
 		try {
@@ -471,6 +484,7 @@ public class Dungeon {
 			bundle.put( HERO, hero );
 			bundle.put( GOLD, gold );
 			bundle.put( DEPTH, depth );
+			bundle.put( INITS, initialized );
 
 			for (int d : droppedItems.keyArray()) {
 				bundle.put(Messages.format(DROPPED, d), droppedItems.get(d));
@@ -573,7 +587,6 @@ public class Dungeon {
 		quickslot.restorePlaceholders( bundle );
 		
 		if (fullLoad) {
-			
 			LimitedDrops.restore( bundle.getBundle(LIMDROPS) );
 
 			chapters = new HashSet<>();
@@ -615,6 +628,8 @@ public class Dungeon {
 		
 		gold = bundle.getInt( GOLD );
 		depth = bundle.getInt( DEPTH );
+
+		initialized = bundle.contains(INITS) ? bundle.getBooleanArray(INITS) : new boolean[MAX_FLOORS+1];
 		
 		Statistics.restoreFromBundle( bundle );
 		Generator.restoreFromBundle( bundle );

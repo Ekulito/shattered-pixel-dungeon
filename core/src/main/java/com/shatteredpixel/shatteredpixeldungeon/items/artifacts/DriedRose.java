@@ -764,6 +764,8 @@ public class DriedRose extends Artifact {
 		}
 		
 		public void sayAppeared(){
+			if(Dungeon.depth > 26)
+				return;
 			int depth = (Dungeon.depth - 1) / 5;
 			
 			//only some lines are said on the first floor of a depth
@@ -792,6 +794,8 @@ public class DriedRose extends Artifact {
 		}
 		
 		public void sayBoss(){
+			if(Dungeon.depth>26)
+				return;
 			int depth = (Dungeon.depth - 1) / 5;
 			
 			switch(depth){

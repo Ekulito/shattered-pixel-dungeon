@@ -160,7 +160,7 @@ public class Hero extends Char {
 	public HeroAction curAction = null;
 	public HeroAction lastAction = null;
 
-	private Char enemy;
+	public Char enemy;
 	
 	public boolean resting = false;
 	
@@ -676,7 +676,7 @@ public class Hero extends Char {
 			ready();
 			
 			Heap heap = Dungeon.level.heaps.get( dst );
-			if (heap != null && heap.type == Type.FOR_SALE && heap.size() == 1) {
+			if (heap != null && (heap.type == Type.FOR_SALE || heap.type == Type.FOR_SALE_RESTOCKABLE) && heap.size() == 1) {
 				Game.runOnRenderThread(new Callback() {
 					@Override
 					public void call() {
@@ -795,7 +795,7 @@ public class Hero extends Char {
 		if (Dungeon.level.adjacent( pos, dst ) || pos == dst) {
 			
 			Heap heap = Dungeon.level.heaps.get( dst );
-			if (heap != null && (heap.type != Type.HEAP && heap.type != Type.FOR_SALE)) {
+			if (heap != null && (heap.type != Type.HEAP && heap.type != Type.FOR_SALE && heap.type != Type.FOR_SALE_RESTOCKABLE)) {
 				
 				if ((heap.type == Type.LOCKED_CHEST && Notes.keyCount(new GoldenKey(Dungeon.depth)) < 1)
 					|| (heap.type == Type.CRYSTAL_CHEST && Notes.keyCount(new CrystalKey(Dungeon.depth)) < 1)){
@@ -1295,12 +1295,13 @@ public class Hero extends Char {
 				//moving to an item doesn't auto-pickup when enemies are near...
 				&& (visibleEnemies.size() == 0 || cell == pos ||
 				//...but only for standard heaps, chests and similar open as normal.
-				(heap.type != Type.HEAP && heap.type != Type.FOR_SALE))) {
+				(heap.type != Type.HEAP && heap.type != Type.FOR_SALE && heap.type != Type.FOR_SALE_RESTOCKABLE))) {
 
 			switch (heap.type) {
 			case HEAP:
 				curAction = new HeroAction.PickUp( cell );
 				break;
+			case FOR_SALE_RESTOCKABLE:
 			case FOR_SALE:
 				curAction = heap.size() == 1 && heap.peek().value() > 0 ?
 					new HeroAction.Buy( cell ) :
@@ -1779,11 +1780,11 @@ public class Hero extends Char {
 							
 						//unintentional trap detection scales from 40% at floor 0 to 30% at floor 25
 						} else if (Dungeon.level.map[p] == Terrain.SECRET_TRAP) {
-							chance = 0.4f - (Dungeon.depth / 250f);
+							chance = 0.4f - (Dungeon.effectiveDepth() / 250f);
 							
 						//unintentional door detection scales from 20% at floor 0 to 0% at floor 20
 						} else {
-							chance = 0.2f - (Dungeon.depth / 100f);
+							chance = 0.2f - (Dungeon.effectiveDepth() / 100f);
 						}
 						
 						if (Random.Float() < chance) {

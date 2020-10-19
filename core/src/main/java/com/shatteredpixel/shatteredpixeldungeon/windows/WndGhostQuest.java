@@ -99,7 +99,8 @@ public class WndGhostQuest extends Window {
 		hide();
 		MobGhost mobGhost=new MobGhost();
 		mobGhost.pos=ghost.pos;
-		ghost.dieWithoutAnimation();
+		ghost.sprite.killAndErase();
+		ghost.destroy();
 		GameScene.add(mobGhost);
 		mobGhost.yell(Messages.get(mobGhost,"onfight"));
 	}

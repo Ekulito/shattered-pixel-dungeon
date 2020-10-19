@@ -24,12 +24,14 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BadgesList;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -44,6 +46,7 @@ import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
+import com.watabou.utils.FileUtils;
 
 import java.util.Locale;
 
@@ -56,7 +59,9 @@ public class WndRanking extends WndTabbed {
 	private String error = null;
 	
 	private Image busy;
-	
+
+	private Rankings.Record curRecord;
+
 	public WndRanking( final Rankings.Record rec ) {
 		
 		super();
@@ -72,6 +77,7 @@ public class WndRanking extends WndTabbed {
 			public void run() {
 				try {
 					Badges.loadGlobal();
+					curRecord = rec;
 					Rankings.INSTANCE.loadGameData( rec );
 				} catch ( Exception e ) {
 					error = Messages.get(WndRanking.class, "error");
@@ -172,7 +178,10 @@ public class WndRanking extends WndTabbed {
 			add( title );
 			
 			float pos = title.bottom() + GAP;
-
+			int winId = -1;
+			if(curRecord.gameData.contains(Rankings.WIN_ID)) {
+				winId = curRecord.gameData.getInt(Rankings.WIN_ID);
+			}
 			if (Dungeon.challenges > 0) {
 				RedButton btnChallenges = new RedButton( Messages.get(this, "challenges") ) {
 					@Override
@@ -185,6 +194,30 @@ public class WndRanking extends WndTabbed {
 				add( btnChallenges );
 
 				pos = btnChallenges.bottom();
+				if (winId != -1)
+					pos += GAP;
+			}
+
+			int finalWinId = winId;
+
+			if(winId != -1) {
+				RedButton btnLoad = new RedButton( Messages.get(this, "load") ) {
+					@Override
+					protected void onClick() {
+						int slot = GamesInProgress.firstEmpty();
+						if(slot == -1) {
+							return;
+						}
+						GamesInProgress.copyGame(finalWinId, slot);
+						Game.switchScene(StartScene.class);
+					}
+				};
+				float btnW = btnLoad.reqWidth() + 2;
+				btnLoad.setRect( (WIDTH - btnW)/2, pos, btnW , btnLoad.reqHeight() + 2 );
+				add( btnLoad );
+
+				pos = btnLoad.bottom();
+
 			}
 
 			pos += GAP;

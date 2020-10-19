@@ -165,7 +165,11 @@ public class WelcomeScene extends PixelScene {
 				for (Rankings.Record rec : Rankings.INSTANCE.records.toArray(new Rankings.Record[0])){
 					try {
 						Rankings.INSTANCE.loadGameData(rec);
-						Rankings.INSTANCE.saveGameData(rec);
+						int winId = -1;
+						if(rec.gameData.contains(Rankings.WIN_ID)) {
+							winId = rec.gameData.getInt(Rankings.WIN_ID);
+						}
+						Rankings.INSTANCE.saveGameData(rec, winId);
 					} catch (Exception e) {
 						//if we encounter a fatal per-record error, then clear that record
 						Rankings.INSTANCE.records.remove(rec);

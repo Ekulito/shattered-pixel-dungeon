@@ -202,11 +202,6 @@ public class Wandmaker extends NPC {
 
 		return true;
 	}
-
-	public void dieWithoutAnimation() {
-		destroy();
-		((WandmakerSprite)sprite).disappear();
-	}
 	
 	public static class Quest {
 
@@ -336,7 +331,7 @@ public class Wandmaker extends NPC {
 		
 		public static ArrayList<Room> spawnRoom( ArrayList<Room> rooms) {
 			questRoomSpawned = false;
-			if (!spawned && (type != 0 || (Dungeon.depth > 6 && Random.Int( 10 - Dungeon.depth ) == 0))) {
+			if (!spawned && (type != 0 || (Dungeon.depth > 6 && Dungeon.depth < 10 && Random.Int( 10 - Dungeon.depth ) == 0))) {
 				
 				// decide between 1,2, or 3 for quest type.
 				if (type == 0) type = Random.Int(3)+1;

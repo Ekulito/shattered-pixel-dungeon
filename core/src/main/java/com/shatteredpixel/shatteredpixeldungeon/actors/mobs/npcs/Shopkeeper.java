@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
+import com.shatteredpixel.shatteredpixeldungeon.levels.TownLevel;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ShopkeeperSprite;
@@ -95,7 +96,9 @@ public class Shopkeeper extends NPC {
 
 	//shopkeepers are greedy!
 	public static int sellPrice(Item item){
-		return item.value() * 5 * (Dungeon.depth / 5 + 1);
+		if(Dungeon.level instanceof TownLevel)
+			 return item.value() * 2; //but not in dolyahaven!
+		return item.value() * 5 * (Dungeon.effectiveDepth() / 5 + 1);
 	}
 	
 	public static WndBag sell() {
@@ -103,7 +106,7 @@ public class Shopkeeper extends NPC {
 	}
 
 	public static boolean willBuyItem( Item item ){
-		if (item.value() < 0)                                               return false;
+		if (item.value() <= 0)                                              return false;
 		if (item.unique && !item.stackable)                                 return false;
 		if (item instanceof Armor && ((Armor) item).checkSeal() != null)    return false;
 		if (item.isEquipped(Dungeon.hero) && item.cursed)                   return false;

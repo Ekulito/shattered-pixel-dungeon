@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.levels.TownLevel;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -67,6 +68,10 @@ public class Fadeleaf extends Plant {
 				InterlevelScene.mode = InterlevelScene.Mode.RETURN;
 				InterlevelScene.returnDepth = Math.max(1, (Dungeon.depth - 1));
 				InterlevelScene.returnPos = -2;
+				if(Dungeon.depth > 26) {
+					InterlevelScene.returnDepth = 27;
+					InterlevelScene.returnPos = -1;
+				}
 				Game.switchScene( InterlevelScene.class );
 				
 			} else {

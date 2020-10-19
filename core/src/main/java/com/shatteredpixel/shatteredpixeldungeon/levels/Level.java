@@ -104,8 +104,6 @@ public abstract class Level implements Bundlable {
 		DARK
 	}
 
-	protected boolean isFlat = false;
-
 	protected int width;
 	protected int height;
 	protected int length;
@@ -387,14 +385,6 @@ public abstract class Level implements Bundlable {
 
 		buildFlagMaps();
 		cleanWalls();
-
-		//compat with pre-0.8.0 saves
-		for (Heap h : heaps.valueList()){
-			if (h.type == Heap.Type.MIMIC){
-				heaps.remove(h.pos);
-				mobs.add(Mimic.spawnAt(h.pos, h.items));
-			}
-		}
 	}
 	
 	@Override
@@ -1175,7 +1165,9 @@ public abstract class Level implements Bundlable {
 		return distance( a, b ) == 1;
 	}
 
-	public boolean isFlat() {return isFlat;}
+	public boolean isFlat() {return Dungeon.isFlat();}
+
+	public int effectiveDepth() {return Dungeon.depth;}
 
 	//uses pythagorean theorum for true distance, as if there was no movement grid
 	public float trueDistance(int a, int b){

@@ -435,9 +435,9 @@ public class GameScene extends PixelScene {
 		Camera.main.panTo(hero.center(), 2.5f);
 
 		if (InterlevelScene.mode != InterlevelScene.Mode.NONE) {
-			if (Dungeon.depth == Statistics.deepestFloor
+			if (Dungeon.effectiveDepth() == Statistics.deepestFloor
 					&& (InterlevelScene.mode == InterlevelScene.Mode.DESCEND || InterlevelScene.mode == InterlevelScene.Mode.FALL)) {
-				GLog.h(Messages.get(this, "descend"), Dungeon.depth);
+				GLog.h(Messages.get(this, "descend"), Dungeon.effectiveDepth());
 				Sample.INSTANCE.play(Assets.Sounds.DESCEND);
 				
 				for (Char ch : Actor.chars()){
@@ -466,7 +466,7 @@ public class GameScene extends PixelScene {
 			} else if (InterlevelScene.mode == InterlevelScene.Mode.RESET) {
 				GLog.h(Messages.get(this, "warp"));
 			} else {
-				GLog.h(Messages.get(this, "return"), Dungeon.depth);
+				GLog.h(Messages.get(this, "return"), Dungeon.effectiveDepth());
 			}
 
 			switch (Dungeon.level.feeling) {

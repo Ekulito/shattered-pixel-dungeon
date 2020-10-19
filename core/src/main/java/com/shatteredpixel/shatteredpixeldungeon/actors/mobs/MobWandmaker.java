@@ -49,7 +49,6 @@ import java.util.Iterator;
 
 //currently broken wands:
 //living earth
-//transfusion
 //warding
 //blastwave
 public class MobWandmaker extends Mob implements Callback {
@@ -202,8 +201,8 @@ public class MobWandmaker extends Mob implements Callback {
     public void die( Object cause ) {
         int tempPos = pos;
         super.die( cause );
-        Dungeon.level.drop(Wandmaker.Quest.wand1.identify(), tempPos);
-        Dungeon.level.drop(Wandmaker.Quest.wand2.identify(), tempPos);
+        Dungeon.level.drop(Wandmaker.Quest.wand1.identify(), tempPos).sprite.drop();
+        Dungeon.level.drop(Wandmaker.Quest.wand2.identify(), tempPos).sprite.drop();
         Wandmaker.Quest.complete();
     }
 

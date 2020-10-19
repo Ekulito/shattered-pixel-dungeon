@@ -59,7 +59,7 @@ public enum Rankings {
 	public int totalNumber;
 	public int wonNumber;
 
-	public void submit( boolean win, Class cause ) {
+	public void submit( boolean win, Class cause, int winId ) {
 
 		load();
 		
@@ -70,10 +70,10 @@ public enum Rankings {
 		rec.heroClass	= Dungeon.hero.heroClass;
 		rec.armorTier	= Dungeon.hero.tier();
 		rec.herolevel	= Dungeon.hero.lvl;
-		rec.depth		= Dungeon.depth;
+		rec.depth		= Dungeon.effectiveDepth();
 		rec.score	= score( win );
 		
-		INSTANCE.saveGameData(rec);
+		INSTANCE.saveGameData(rec, winId);
 
 		rec.gameID = UUID.randomUUID().toString();
 		
@@ -84,14 +84,16 @@ public enum Rankings {
 		lastRecord = records.indexOf( rec );
 		int size = records.size();
 		while (size > TABLE_SIZE) {
-
+			Record toDel;
 			if (lastRecord == size - 1) {
-				records.remove( size - 2 );
+				toDel = records.remove( size - 2 );
 				lastRecord--;
 			} else {
-				records.remove( size - 1 );
+				toDel = records.remove( size - 1 );
 			}
-
+			if (toDel.gameData.contains(WIN_ID)) {
+				Dungeon.deleteGame(winId, true);
+			}
 			size = records.size();
 		}
 		
@@ -101,12 +103,11 @@ public enum Rankings {
 		}
 
 		Badges.validateGamesPlayed();
-		
 		save();
 	}
 
 	private int score( boolean win ) {
-		return (Statistics.goldCollected + Dungeon.hero.lvl * (win ? 26 : Dungeon.depth ) * 100) * (win ? 2 : 1);
+		return (Statistics.goldCollected + Dungeon.hero.lvl * (win ? 26 : Dungeon.effectiveDepth() ) * 100) * (win ? 2 : 1);
 	}
 
 	public static final String HERO = "hero";
@@ -114,8 +115,9 @@ public enum Rankings {
 	public static final String BADGES = "badges";
 	public static final String HANDLERS = "handlers";
 	public static final String CHALLENGES = "challenges";
+	public static final String WIN_ID = "winID";
 
-	public void saveGameData(Record rec){
+	public void saveGameData(Record rec, int winId){
 		rec.gameData = new Bundle();
 
 		Belongings belongings = Dungeon.hero.belongings;
@@ -139,6 +141,8 @@ public enum Rankings {
 		}
 
 		rec.gameData.put( HERO, Dungeon.hero );
+		if(winId != -1)
+			rec.gameData.put(WIN_ID, winId);
 
 		//save stats
 		Bundle stats = new Bundle();
@@ -299,8 +303,8 @@ public enum Rankings {
 			heroClass	= HeroClass.restoreInBundle( bundle );
 			armorTier	= bundle.getInt( TIER );
 			
-			if (bundle.contains(DATA))  gameData = bundle.getBundle(DATA);
-			if (bundle.contains(ID))   gameID = bundle.getString(ID);
+			if (bundle.contains(DATA))   gameData = bundle.getBundle(DATA);
+			if (bundle.contains(ID))     gameID = bundle.getString(ID);
 			
 			if (gameID == null) gameID = UUID.randomUUID().toString();
 

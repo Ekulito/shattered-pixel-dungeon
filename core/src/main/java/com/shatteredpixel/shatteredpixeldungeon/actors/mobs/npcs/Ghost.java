@@ -187,11 +187,6 @@ public class Ghost extends NPC {
 		return true;
 	}
 
-	public void dieWithoutAnimation() {
-		destroy();
-		((GhostSprite)sprite).disappear();
-	}
-
 	public static class Quest {
 		
 		private static boolean spawned;
@@ -268,7 +263,7 @@ public class Ghost extends NPC {
 		}
 		
 		public static void spawn( SewerLevel level ) {
-			if (!spawned && Dungeon.depth > 1 && Random.Int( 5 - Dungeon.depth ) == 0) {
+			if (!spawned && Dungeon.depth > 1 && Dungeon.depth < 5 && Random.Int( 5 - Dungeon.depth ) == 0) {
 				
 				Ghost ghost = new Ghost();
 				do {

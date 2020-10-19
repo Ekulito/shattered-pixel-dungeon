@@ -32,7 +32,6 @@ public class WandmakerSprite extends MobSprite {
 	
 	private ShieldHalo shield;
 
-	private Animation disappear;
 	public WandmakerSprite() {
 		super();
 		
@@ -48,9 +47,6 @@ public class WandmakerSprite extends MobSprite {
 		
 		die = new Animation( 20, false );
 		die.frames( frames, 0 );
-
-		disappear=new Animation(15,false);
-		disappear.frames(frames,4);
 
 		play( idle );
 	}
@@ -70,20 +66,6 @@ public class WandmakerSprite extends MobSprite {
 
 		if (visible) {
 			Sample.INSTANCE.play( Assets.Sounds.BURNING );
-		}
-	}
-
-
-	public void disappear() {
-		remove(State.SHIELDED);
-
-		sleeping = false;
-		play( disappear );
-
-		hideEmo();
-
-		if (health != null){
-			health.killAndErase();
 		}
 	}
 

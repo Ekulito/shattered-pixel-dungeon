@@ -142,33 +142,31 @@ public class Blob extends Actor {
 	public void use( BlobEmitter emitter ) {
 		this.emitter = emitter;
 	}
-	
-	protected void evolve() {
-		
-		boolean[] blocking = Dungeon.level.solid;
+
+	protected void evolve(boolean[] thisTile, boolean pass) {
 		int cell;
 		for (int i=area.top-1; i <= area.bottom; i++) {
 			for (int j = area.left-1; j <= area.right; j++) {
 				cell = j + i*Dungeon.level.width();
 				if (Dungeon.level.insideMap(cell)) {
-					if (!blocking[cell]) {
+					if (thisTile[cell] == pass) {
 
 						int count = 1;
 						int sum = cur[cell];
 
-						if (j > area.left && !blocking[cell-1]) {
+						if (j > area.left && thisTile[cell-1] == pass) {
 							sum += cur[cell-1];
 							count++;
 						}
-						if (j < area.right && !blocking[cell+1]) {
+						if (j < area.right && thisTile[cell+1] == pass) {
 							sum += cur[cell+1];
 							count++;
 						}
-						if (i > area.top && !blocking[cell-Dungeon.level.width()]) {
+						if (i > area.top && thisTile[cell-Dungeon.level.width()] == pass) {
 							sum += cur[cell-Dungeon.level.width()];
 							count++;
 						}
-						if (i < area.bottom && !blocking[cell+Dungeon.level.width()]) {
+						if (i < area.bottom && thisTile[cell+Dungeon.level.width()] == pass) {
 							sum += cur[cell+Dungeon.level.width()];
 							count++;
 						}
@@ -194,6 +192,10 @@ public class Blob extends Actor {
 				}
 			}
 		}
+	}
+
+	protected void evolve() {
+		evolve(Dungeon.level.solid, false);
 	}
 
 	public void seed( Level level, int cell, int amount ) {

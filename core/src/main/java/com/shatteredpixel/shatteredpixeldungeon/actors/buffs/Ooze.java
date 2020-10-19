@@ -22,6 +22,8 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CausticWater;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -84,8 +86,8 @@ public class Ooze extends Buff {
 	@Override
 	public boolean act() {
 		if (target.isAlive()) {
-			if (Dungeon.depth > 4)
-				target.damage( Dungeon.depth/5, this );
+			if (Dungeon.effectiveDepth() > 4)
+				target.damage( Dungeon.effectiveDepth()/5, this );
 			else if (Random.Int(2) == 0)
 				target.damage( 1, this );
 			if (!target.isAlive() && target == Dungeon.hero) {
@@ -101,7 +103,9 @@ public class Ooze extends Buff {
 			detach();
 		}
 		if (Dungeon.level.water[target.pos]) {
-			detach();
+			Blob cWater = Dungeon.level.blobs.get(CausticWater.class);
+			if (cWater == null || cWater.cur == null || cWater.cur[target.pos] <= 0)
+				detach();
 		}
 		return true;
 	}

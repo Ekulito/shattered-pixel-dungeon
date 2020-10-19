@@ -81,6 +81,11 @@ public class NewCityBossLevel extends Level {
 	private ImpShopRoom impShop;
 
 	@Override
+	public boolean isFlat() {
+		return false;
+	}
+
+	@Override
 	public String tilesTex() {
 		return Assets.Environment.TILES_CITY;
 	}

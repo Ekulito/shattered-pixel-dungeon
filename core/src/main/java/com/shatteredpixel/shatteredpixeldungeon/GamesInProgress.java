@@ -25,6 +25,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndChallenges;
+import com.watabou.noosa.Game;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.FileUtils;
 
@@ -36,7 +39,7 @@ import java.util.HashMap;
 
 public class GamesInProgress {
 	
-	public static final int MAX_SLOTS = 4;
+	public static final int MAX_SLOTS = 5;
 	
 	//null means we have loaded info and it is empty, no entry means unknown.
 	private static HashMap<Integer, Info> slotStates = new HashMap<>();
@@ -47,6 +50,22 @@ public class GamesInProgress {
 	private static final String GAME_FOLDER = "game%d";
 	private static final String GAME_FILE	= "game.dat";
 	private static final String DEPTH_FILE	= "depth%d.dat";
+
+	public static void copyGame(int from, int to) {
+		try {
+			Bundle bundle = FileUtils.bundleFromFile(gameFile(from));
+			FileUtils.bundleToFile(gameFile(to), bundle);
+			for(int i = 0; i <= Dungeon.MAX_FLOORS; ++i) {
+				if (FileUtils.fileExists(depthFile(from, i))) {
+					FileUtils.bundleToFile(depthFile(to, i), FileUtils.bundleFromFile(depthFile(from, i)));
+				}
+			}
+			if(to <= MAX_SLOTS && to > 0) {
+				set(to,bundle.getInt("depth"), bundle.getInt("challenges"), (Hero)bundle.get("hero"));
+			}
+		} catch (IOException e) {
+		}
+	}
 	
 	public static boolean gameExists( int slot ){
 		return FileUtils.dirExists(Messages.format(GAME_FOLDER, slot));

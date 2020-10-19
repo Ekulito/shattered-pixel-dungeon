@@ -58,13 +58,13 @@ public class Heap implements Bundlable {
 	public enum Type {
 		HEAP,
 		FOR_SALE,
+		FOR_SALE_RESTOCKABLE,
 		CHEST,
 		LOCKED_CHEST,
 		CRYSTAL_CHEST,
 		TOMB,
 		SKELETON,
-		REMAINS,
-		MIMIC //remains for pre-0.8.0 compatibility. There are converted to mimics on level load
+		REMAINS
 	}
 	public Type type = Type.HEAP;
 	
@@ -78,37 +78,31 @@ public class Heap implements Bundlable {
 	
 	public void open( Hero hero ) {
 		switch (type) {
-		case MIMIC:
-			type = Type.CHEST;
-			break;
-		case TOMB:
-			Wraith.spawnAround( hero.pos );
-			break;
-		case REMAINS:
-		case SKELETON:
-			CellEmitter.center( pos ).start(Speck.factory(Speck.RATTLE), 0.1f, 3);
-			break;
-		default:
-		}
-		
-		if (haunted){
-			if (Wraith.spawnAt( pos ) == null) {
-				hero.sprite.emitter().burst( ShadowParticle.CURSE, 6 );
-				hero.damage( hero.HP / 2, this );
-			}
-			Sample.INSTANCE.play( Assets.Sounds.CURSED );
+			case TOMB:
+				Wraith.spawnAround(hero.pos);
+				break;
+			case REMAINS:
+			case SKELETON:
+				CellEmitter.center(pos).start(Speck.factory(Speck.RATTLE), 0.1f, 3);
+				break;
+			default:
 		}
 
-		if (type != Type.MIMIC) {
-			type = Type.HEAP;
-			ArrayList<Item> bonus = RingOfWealth.tryForBonusDrop(hero, 1);
-			if (bonus != null && !bonus.isEmpty()) {
-				items.addAll(0, bonus);
-				RingOfWealth.showFlareForBonusDrop(sprite);
+		if (haunted) {
+			if (Wraith.spawnAt(pos) == null) {
+				hero.sprite.emitter().burst(ShadowParticle.CURSE, 6);
+				hero.damage(hero.HP / 2, this);
 			}
-			sprite.link();
-			sprite.drop();
+			Sample.INSTANCE.play(Assets.Sounds.CURSED);
 		}
+		type = Type.HEAP;
+		ArrayList<Item> bonus = RingOfWealth.tryForBonusDrop(hero, 1);
+		if (bonus != null && !bonus.isEmpty()) {
+			items.addAll(0, bonus);
+			RingOfWealth.showFlareForBonusDrop(sprite);
+		}
+		sprite.link();
+		sprite.drop();
 	}
 	
 	public Heap setHauntedIfCursed(){
@@ -132,7 +126,15 @@ public class Heap implements Bundlable {
 			destroy();
 			return null;
 		}
-		Item item = items.removeFirst();
+		Item item = items.getFirst();
+		if(items.size() > 1 || type != Type.FOR_SALE_RESTOCKABLE)
+			items.removeFirst();
+		else {
+			try {
+				item = item.getClass().newInstance().identify();
+			} catch (InstantiationException ignored) { return null; }
+			catch (IllegalAccessException ignored)   { return null; }
+		}
 		if (items.isEmpty()) {
 			destroy();
 		} else if (sprite != null) {
@@ -148,7 +150,7 @@ public class Heap implements Bundlable {
 	
 	public void drop( Item item ) {
 		
-		if (item.stackable && type != Type.FOR_SALE) {
+		if (item.stackable && type != Type.FOR_SALE && type != Type.FOR_SALE_RESTOCKABLE) {
 			
 			for (Item i : items) {
 				if (i.isSimilar( item )) {
@@ -160,7 +162,7 @@ public class Heap implements Bundlable {
 			
 		}
 		
-		if (item.dropsDownHeap && type != Type.FOR_SALE) {
+		if (item.dropsDownHeap && type != Type.FOR_SALE && type != Type.FOR_SALE_RESTOCKABLE) {
 			items.add( item );
 		} else {
 			items.addFirst( item );
@@ -242,7 +244,7 @@ public class Heap implements Bundlable {
 	public void explode() {
 
 		//breaks open most standard containers, mimics die.
-		if (type == Type.MIMIC || type == Type.CHEST || type == Type.SKELETON) {
+		if (type == Type.CHEST || type == Type.SKELETON) {
 			type = Type.HEAP;
 			sprite.link();
 			sprite.drop();
@@ -347,11 +349,11 @@ public class Heap implements Bundlable {
 	@Override
 	public String toString(){
 		switch(type){
+			case FOR_SALE_RESTOCKABLE:
 			case FOR_SALE:
 				Item i = peek();
 				return Messages.get(this, "for_sale", Shopkeeper.sellPrice(i), i.toString());
 			case CHEST:
-			case MIMIC:
 				return Messages.get(this, "chest");
 			case LOCKED_CHEST:
 				return Messages.get(this, "locked_chest");
@@ -371,7 +373,6 @@ public class Heap implements Bundlable {
 	public String info(){
 		switch(type){
 			case CHEST:
-			case MIMIC:
 				return Messages.get(this, "chest_desc");
 			case LOCKED_CHEST:
 				return Messages.get(this, "locked_chest_desc");

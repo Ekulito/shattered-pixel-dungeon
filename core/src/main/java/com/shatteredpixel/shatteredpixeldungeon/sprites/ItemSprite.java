@@ -203,10 +203,9 @@ public class ItemSprite extends MovieClip {
 		}
 		
 		switch (heap.type) {
-			case HEAP: case FOR_SALE:
+			case HEAP: case FOR_SALE: case FOR_SALE_RESTOCKABLE:
 				return view( heap.peek() );
 			case CHEST:
-			case MIMIC:
 				return view( ItemSpriteSheet.CHEST, null );
 			case LOCKED_CHEST:
 				return view( ItemSpriteSheet.LOCKED_CHEST, null );

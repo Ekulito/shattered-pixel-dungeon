@@ -59,6 +59,11 @@ public class NewHallsBossLevel extends Level {
 	private static final int ROOM_BOTTOM	= ROOM_TOP + 8;
 
 	@Override
+	public boolean isFlat() {
+		return false;
+	}
+
+	@Override
 	public String tilesTex() {
 		return Assets.Environment.TILES_HALLS;
 	}

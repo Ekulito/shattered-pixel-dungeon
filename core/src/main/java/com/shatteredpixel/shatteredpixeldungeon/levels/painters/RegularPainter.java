@@ -275,7 +275,7 @@ public abstract class RegularPainter extends Painter {
 		return true;
 	}
 	
-	protected void paintWater( Level l, ArrayList<Room> rooms ){
+	public void paintWater( Level l, ArrayList<Room> rooms ){
 		boolean[] lake = Patch.generate( l.width(), l.height(), waterFill, waterSmoothness, true );
 		
 		if (!rooms.isEmpty()){

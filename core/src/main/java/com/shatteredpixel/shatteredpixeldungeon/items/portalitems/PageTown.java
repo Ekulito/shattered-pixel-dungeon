@@ -21,11 +21,22 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.portalitems;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.Game;
 
 public class PageTown extends PortalItem {
     {
         depth = 27;
         image = ItemSpriteSheet.JOURNAL_PAGE;
+    }
+    @Override
+    protected boolean canTeleport() {
+        return true;
     }
 }

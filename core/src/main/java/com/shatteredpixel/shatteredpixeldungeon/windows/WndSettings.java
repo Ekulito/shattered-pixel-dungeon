@@ -196,6 +196,7 @@ public class WndSettings extends WndTabbed {
 		ColorBlock sep2;
 		OptionSlider optBrightness;
 		OptionSlider optVisGrid;
+		CheckBox chkIsometry;
 
 		@Override
 		protected void createChildren() {
@@ -288,6 +289,15 @@ public class WndSettings extends WndTabbed {
 			optVisGrid.setSelectedValue(SPDSettings.visualGrid());
 			add(optVisGrid);
 
+			chkIsometry = new CheckBox(Messages.get(this,"isometry")) {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					SPDSettings.isometric(checked());
+				}
+			};
+			chkIsometry.checked(SPDSettings.isometric());
+			add(chkIsometry);
 		}
 
 		@Override
@@ -333,8 +343,9 @@ public class WndSettings extends WndTabbed {
 				optBrightness.setRect(0, bottom + GAP, width, SLIDER_HEIGHT);
 				optVisGrid.setRect(0, optBrightness.bottom() + GAP, width, SLIDER_HEIGHT);
 			}
+			chkIsometry.setRect(0,optVisGrid.bottom() + GAP, width, BTN_HEIGHT);
 
-			height = optVisGrid.bottom();
+			height = chkIsometry.bottom();
 		}
 
 	}

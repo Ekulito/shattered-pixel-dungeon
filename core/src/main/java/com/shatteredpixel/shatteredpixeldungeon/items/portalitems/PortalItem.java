@@ -21,15 +21,24 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.portalitems;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Game;
 
 import java.util.ArrayList;
 
 public abstract class PortalItem extends Item {
     protected int depth;
+    protected boolean resetDepth = false;
     protected static final String AC_PORT = "PORT";
     {
         unique = true;
@@ -52,10 +61,29 @@ public abstract class PortalItem extends Item {
         return actions;
     }
 
+    protected boolean canTeleport() {
+        return Dungeon.depth == 27;
+    }
+
     @Override
     public void execute(Hero hero, String action ) {
         super.execute(hero, action);
         if(action.equals(AC_PORT)) {
+            if (!canTeleport()) {
+                GLog.w(Messages.get(ScrollOfTeleportation.class, "no_tele"));
+                return;
+            }
+
+            Buff buff = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
+            if (buff != null) buff.detach();
+            buff = Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
+            if (buff != null) buff.detach();
+            buff = Dungeon.hero.buff(LockedFloor.class);
+            if (buff != null) buff.detach();
+
+            if (resetDepth) {
+                Dungeon.destroyFloor(depth);
+            }
             InterlevelScene.returnDepth = depth;
             InterlevelScene.mode = InterlevelScene.Mode.PORT;
             Game.switchScene(InterlevelScene.class);

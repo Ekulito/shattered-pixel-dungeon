@@ -119,7 +119,7 @@ public abstract class RegularLevel extends Level {
 			initRooms.add(s);
 		}
 		
-		int secrets = SecretRoom.secretsForFloor(Dungeon.depth);
+		int secrets = SecretRoom.secretsForFloor(Dungeon.effectiveDepth());
 		for (int i = 0; i < secrets; i++)
 			initRooms.add(SecretRoom.createRoom());
 		
@@ -144,7 +144,7 @@ public abstract class RegularLevel extends Level {
 	protected abstract Painter painter();
 	
 	protected int nTraps() {
-		return Random.NormalIntRange( 2, 3 + (Dungeon.depth/5) );
+		return Random.NormalIntRange( 2, 3 + (Dungeon.effectiveDepth()/5) );
 	}
 	
 	protected Class<?>[] trapClasses(){
@@ -162,7 +162,7 @@ public abstract class RegularLevel extends Level {
 				//mobs are not randomly spawned on floor 1.
 				return 0;
 			default:
-				return 3 + Dungeon.depth % 5 + Random.Int(3);
+				return 3 + Dungeon.effectiveDepth() % 5 + Random.Int(3);
 		}
 	}
 	
@@ -372,7 +372,7 @@ public abstract class RegularLevel extends Level {
 		DriedRose rose = Dungeon.hero.belongings.getItem( DriedRose.class );
 		if (rose != null && rose.isIdentified() && !rose.cursed){
 			//aim to drop 1 petal every 2 floors
-			int petalsNeeded = (int) Math.ceil((float)((Dungeon.depth / 2) - rose.droppedPetals) / 3);
+			int petalsNeeded = (int) Math.ceil((float)((Dungeon.effectiveDepth() / 2) - rose.droppedPetals) / 3);
 
 			for (int i=1; i <= petalsNeeded; i++) {
 				//the player may miss a single petal and still max their rose.
@@ -403,7 +403,7 @@ public abstract class RegularLevel extends Level {
 		missingPages.remove(Document.GUIDE_SEARCH_PAGE);
 
 		//chance to find a page scales with pages missing and depth
-		float dropChance = (missingPages.size() + Dungeon.depth - 1) / (float)(allPages.size() - 2);
+		float dropChance = (missingPages.size() + Dungeon.effectiveDepth() - 1) / (float)(allPages.size() - 2);
 		if (!missingPages.isEmpty() && Random.Float() < dropChance){
 			GuidePage p = new GuidePage();
 			p.page(missingPages.get(0));

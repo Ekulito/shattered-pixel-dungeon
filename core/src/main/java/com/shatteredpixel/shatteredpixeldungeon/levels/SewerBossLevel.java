@@ -51,7 +51,12 @@ public class SewerBossLevel extends SewerLevel {
 	}
 	
 	private int stairs = 0;
-	
+
+	@Override
+	public boolean isFlat() {
+		return false;
+	}
+
 	@Override
 	protected ArrayList<Room> initRooms() {
 		ArrayList<Room> initRooms = new ArrayList<>();

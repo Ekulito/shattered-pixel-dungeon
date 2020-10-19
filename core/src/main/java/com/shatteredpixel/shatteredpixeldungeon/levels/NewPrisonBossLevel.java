@@ -82,6 +82,11 @@ public class NewPrisonBossLevel extends Level {
 	
 	private State state;
 	private NewTengu tengu;
+
+	@Override
+	public boolean isFlat() {
+		return false;
+	}
 	
 	public State state(){
 		return state;

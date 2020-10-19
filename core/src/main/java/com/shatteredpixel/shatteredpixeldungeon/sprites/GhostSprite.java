@@ -29,7 +29,6 @@ import com.watabou.noosa.TextureFilm;
 
 public class GhostSprite extends MobSprite {
 
-	private Animation disappear;
 	public GhostSprite() {
 		super();
 		
@@ -48,22 +47,8 @@ public class GhostSprite extends MobSprite {
 
 		die = new Animation( 8, false );
 		die.frames( frames, 0, 4, 5, 6, 7 );
-
-		disappear=new Animation(15,false);
-		disappear.frames(frames,8);
 		
 		play( idle );
-	}
-
-	public void disappear() {
-		sleeping = false;
-		play( disappear );
-
-		hideEmo();
-
-		if (health != null){
-			health.killAndErase();
-		}
 	}
 	
 	@Override

@@ -149,7 +149,6 @@ public class LastLevel extends Level {
 
 	@Override
 	protected void createItems() {
-		drop(new PageTown(), exit);
 		drop( new Amulet(), exit );
 	}
 

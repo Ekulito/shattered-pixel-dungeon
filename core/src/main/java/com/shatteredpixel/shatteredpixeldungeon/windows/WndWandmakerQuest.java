@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.MobWandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
@@ -102,15 +103,23 @@ public class WndWandmakerQuest extends Window {
 		hide();
 		MobWandmaker mobWandmaker=new MobWandmaker();
 		mobWandmaker.pos=wandmaker.pos;
-		wandmaker.dieWithoutAnimation();
+		wandmaker.sprite.killAndErase();
+		wandmaker.destroy();
 		GameScene.add(mobWandmaker);
 		//things to avoid bad wands
-		Wand cw=Wandmaker.Quest.wand1;
-		if(cw instanceof WandOfBlastWave || cw instanceof WandOfLivingEarth || cw instanceof WandOfTransfusion || cw instanceof WandOfWarding)
-			Wandmaker.Quest.wand1=new WandOfCorruption();
-		Wandmaker.Quest.wand1.userAsChar=mobWandmaker;
-		cw=Wandmaker.Quest.wand2;
-		if(cw instanceof WandOfBlastWave || cw instanceof WandOfLivingEarth || cw instanceof WandOfTransfusion || cw instanceof WandOfWarding)
-			Wandmaker.Quest.wand2=new WandOfFrost();
+		Wand cw = Wandmaker.Quest.wand1;
+		while (cw instanceof WandOfBlastWave || cw instanceof WandOfLivingEarth || cw instanceof WandOfWarding) {
+			cw = (Wand) Generator.random(Generator.Category.WAND);
+			cw.cursed = false;
+			cw.upgrade();
+			Wandmaker.Quest.wand1 = cw;
+		}
+		cw = Wandmaker.Quest.wand2;
+		while (cw instanceof WandOfBlastWave || cw instanceof WandOfLivingEarth || cw instanceof WandOfWarding) {
+			cw = (Wand) Generator.random(Generator.Category.WAND);
+			cw.cursed = false;
+			cw.upgrade();
+			Wandmaker.Quest.wand2 = cw;
+		}
 	}
 }

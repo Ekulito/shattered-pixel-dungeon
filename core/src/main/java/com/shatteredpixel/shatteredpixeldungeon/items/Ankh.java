@@ -46,7 +46,7 @@ public class Ankh extends Item {
 		bones = true;
 	}
 
-	private boolean blessed = false;
+	private boolean blessed = true;
 	
 	@Override
 	public boolean isUpgradable() {
@@ -129,6 +129,6 @@ public class Ankh extends Item {
 	
 	@Override
 	public int value() {
-		return 50 * quantity;
-	}
+		return 50 * quantity * 4;
+	}//additional x4 price for being always blessed
 }

@@ -104,7 +104,7 @@ public class Insanity extends Buff implements Hero.Doom {
 				GLog.n(Messages.get(this,"effect2"));
 				break;
 			case 3:
-				int damage = Math.max( 0,  (2 + Dungeon.depth/2) - hero.drRoll()/2 );
+				int damage = Math.max( 0,  (2 + Dungeon.effectiveDepth()/2) - hero.drRoll()/2 );
 				Buff.affect( hero, Bleeding.class ).set( damage );
 				GLog.n(Messages.get(this,"effect3"));
 				break;

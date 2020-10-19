@@ -181,8 +181,8 @@ public class MobGhost extends Mob implements Callback {
 		int tempPos = pos;//because we die and our position becomes nowhere
 		yell(Messages.get(this,"ondefeat"));
 		super.die( cause );
-		Dungeon.level.drop(Ghost.Quest.weapon.identify(), tempPos);
-		Dungeon.level.drop(Ghost.Quest.armor.identify(), tempPos);
+		Dungeon.level.drop(Ghost.Quest.weapon.identify(), tempPos).sprite.drop();
+		Dungeon.level.drop(Ghost.Quest.armor.identify(), tempPos).sprite.drop();
 		Ghost.Quest.fail();
 	}
 }

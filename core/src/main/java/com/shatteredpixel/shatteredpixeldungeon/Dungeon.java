@@ -33,11 +33,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
+import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
+import com.shatteredpixel.shatteredpixeldungeon.items.portalitems.PageTown;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
@@ -45,9 +47,9 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.DeadEndLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.FinalGooLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.HallsLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.LastLevel;
-import com.shatteredpixel.shatteredpixeldungeon.levels.LastShopLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.NewCavesBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.NewCityBossLevel;
@@ -65,6 +67,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndChallenges;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
@@ -78,7 +81,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Dungeon {
-	private static final int MAX_FLOORS=100;
+	public static final int MAX_FLOORS=100;
 	private static boolean[] initialized;
 	//enum of items which have limited spawns, records how many have spawned
 	//could all be their own separate numbers, but this allows iterating, much nicer for bundling/initializing.
@@ -158,6 +161,7 @@ public class Dungeon {
 	public static QuickSlot quickslot = new QuickSlot();
 	
 	public static int depth;
+	public static int effDepth;//TO BE USED DURING LEVEL LOAD ONLY
 	public static int gold;
 	
 	public static HashSet<Integer> chapters;
@@ -211,6 +215,7 @@ public class Dungeon {
 		Wandmaker.Quest.reset();
 		Blacksmith.Quest.reset();
 		Imp.Quest.reset();
+		TownLevel.Progression.reset();
 
 		Generator.fullReset();
 		hero = new Hero();
@@ -229,20 +234,21 @@ public class Dungeon {
 		return initialized[floor];
 	}
 
+	public static void destroyFloor(int floor) {
+		initialized[floor] = false;
+	}
+
+	public static boolean isFlat() {return !SPDSettings.isometric();}
+
+	public static int effectiveDepth() {
+		return level == null ? effDepth : level.effectiveDepth();
+	}
+
 	public static Level newLevel(int newDepth, boolean updateMax){
 		initialized[newDepth] = true;
 		Dungeon.level = null;
 		Actor.clear();
 		depth = newDepth;
-		if (depth > Statistics.deepestFloor && updateMax) {
-			Statistics.deepestFloor = depth;
-
-			if (Statistics.qualifiedForNoKilling) {
-				Statistics.completedWithNoKilling = true;
-			} else {
-				Statistics.completedWithNoKilling = false;
-			}
-		}
 
 		Level level;
 		switch (depth) {
@@ -283,19 +289,7 @@ public class Dungeon {
 				level = new NewCityBossLevel();
 				break;
 			case 21:
-				//logic for old city boss levels, need to spawn a shop on floor 21
-				try {
-					Bundle bundle = FileUtils.bundleFromFile(GamesInProgress.depthFile(GamesInProgress.curSlot, 20));
-					Class cls = bundle.getBundle(LEVEL).getClass("__className");
-					if (cls == NewCityBossLevel.class) {
-						level = new HallsLevel();
-					} else {
-						level = new LastShopLevel();
-					}
-				} catch (Exception e) {
-					ShatteredPixelDungeon.reportException(e);
-					level = new HallsLevel();
-				}
+				level = new HallsLevel();
 				break;
 			case 22:
 			case 23:
@@ -311,9 +305,23 @@ public class Dungeon {
 			case 27:
 				level = new TownLevel();
 				break;
+			case 28:
+				level = new FinalGooLevel();
+				break;
 			default:
 				level = new DeadEndLevel();
-				Statistics.deepestFloor--;
+		}
+
+		effDepth = level.effectiveDepth();
+
+		if (level.effectiveDepth() > Statistics.deepestFloor && updateMax) {
+			Statistics.deepestFloor = level.effectiveDepth();
+
+			if (Statistics.qualifiedForNoKilling) {
+				Statistics.completedWithNoKilling = true;
+			} else {
+				Statistics.completedWithNoKilling = false;
+			}
 		}
 
 		level.create();
@@ -513,6 +521,8 @@ public class Dungeon {
 			Blacksmith	.Quest.storeInBundle( quests );
 			Imp			.Quest.storeInBundle( quests );
 			bundle.put( QUESTS, quests );
+
+			TownLevel.Progression.storeInBundle(bundle);
 			
 			SpecialRoom.storeRoomsInBundle( bundle );
 			SecretRoom.storeRoomsInBundle( bundle );
@@ -609,6 +619,8 @@ public class Dungeon {
 				Blacksmith.Quest.reset();
 				Imp.Quest.reset();
 			}
+
+			TownLevel.Progression.restoreFromBundle(bundle);
 			
 			SpecialRoom.restoreRoomsFromBundle(bundle);
 			SecretRoom.restoreRoomsFromBundle(bundle);
@@ -697,11 +709,26 @@ public class Dungeon {
 	
 	public static void fail( Class cause ) {
 		if (hero.belongings.getItem( Ankh.class ) == null) {
-			Rankings.INSTANCE.submit( false, cause );
+			Rankings.INSTANCE.submit( false, cause, -1 );
 		}
 	}
 	
 	public static void win( Class cause ) {
+		for(Item item : hero.belongings.backpack) {
+			if(item instanceof Amulet)
+				item.detach(hero.belongings.backpack);
+		}
+		new PageTown().collect();
+
+		int winId = Random.Int(100, 1000*1000);
+		try {
+			saveAll();
+		} catch (IOException e) {
+			winId = -1;
+		}
+		if(winId != -1){
+			GamesInProgress.copyGame(GamesInProgress.curSlot, winId);//FIXME: BE CAREFUL WITH THIS. EXTREMELY CAREFUL
+		}
 
 		hero.belongings.identify();
 
@@ -714,7 +741,7 @@ public class Dungeon {
 			Badges.validateChampion(chCount);
 		}
 
-		Rankings.INSTANCE.submit( true, cause );
+		Rankings.INSTANCE.submit( true, cause, winId );
 	}
 
 	//TODO hero max vision is now separate from shadowcaster max vision. Might want to adjust.

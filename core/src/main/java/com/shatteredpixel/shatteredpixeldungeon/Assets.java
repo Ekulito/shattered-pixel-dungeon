@@ -232,6 +232,7 @@ public class Assets {
 		public static final String GNOLL	= "sprites/gnoll.png";
 		public static final String CRAB		= "sprites/crab.png";
 		public static final String GOO		= "sprites/goo.png";
+		public static final String FINALGOO = "sprites/finalgoo.png";
 		public static final String SWARM	= "sprites/swarm.png";
 		public static final String SKELETON	= "sprites/skeleton.png";
 		public static final String SHAMAN	= "sprites/shaman.png";
@@ -256,6 +257,7 @@ public class Assets {
 		public static final String TROLL	= "sprites/blacksmith.png";
 		public static final String IMP		= "sprites/demon.png";
 		public static final String RATKING	= "sprites/ratking.png";
+		public static final String OTILUKE  = "sprites/otiluke.png";
 		public static final String BEE      = "sprites/bee.png";
 		public static final String MIMIC    = "sprites/mimic.png";
 		public static final String ROT_LASH = "sprites/rot_lasher.png";
